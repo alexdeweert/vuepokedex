@@ -13,5 +13,4 @@ const pokemonId = computed(() => route.params.pokemonId)
 const pokemonStore = usePokemonStore()
 </script>
 
-<style>
-</style>
+<style></style>
