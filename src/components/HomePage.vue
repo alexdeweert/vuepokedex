@@ -1,25 +1,43 @@
 <template>
     <div class="container">
-        <AutoComplete
+        <div v-if="loading">
+            <ProgressSpinner/>
+        </div>
+        <div v-else>
+            <AutoComplete
             v-model="searchValue"
             :suggestions="searchItems"
             @complete="search"
             placeholder="Search"
         />
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import AutoComplete, { type AutoCompleteCompleteEvent } from 'primevue/autocomplete'
-import { ref, type Ref } from 'vue'
+import ProgressSpinner from 'primevue/progressspinner';
+import { onMounted, ref, type Ref } from 'vue'
+import { usePokemonStoreAlt } from '@/stores/pokemon'
+let loading: Ref<boolean> = ref(true)
 let searchItems: Ref<string[]> = ref([])
 let searchValue: Ref<string> = ref('')
-let possibleResults = ['bulbasaur', 'pikachu', 'fart']
+let possibleResults: Array<string> = []
+let pokemonStore = usePokemonStoreAlt()
 function search(event: AutoCompleteCompleteEvent) {
     searchItems.value = possibleResults.filter((thing) => {
         return thing.includes(event.query)
     })
 }
+onMounted(async () => {
+    if(pokemonStore.getPokemonCount == 0) {
+        console.log(`no pokemon count - fetching from network`)
+        await pokemonStore.setPokemonResults()
+    }
+    else console.log(`was pokemon count - fetching from CACHE`)
+    pokemonStore.getPokemonResults?.results.map(result => possibleResults.push(result.name))
+    loading.value = false
+})
 </script>
 
 <style scoped>

@@ -6,7 +6,8 @@
                 <li><Button link @click="navToDetails" label="Details" /></li>
             </ul>
         </nav>
-        <Button link icon="pi pi-moon" @click="toggleTheme" />
+        <Button v-if="darkMode" link icon="pi pi-sun" @click="toggleTheme" />
+        <Button v-else link icon="pi pi-moon" @click="toggleTheme" />
     </div>
     <RouterView></RouterView>
 </template>
