@@ -8,6 +8,7 @@
             v-model="searchValue"
             :suggestions="searchItems"
             @complete="search"
+            :complete-on-focus="true"
             placeholder="Search"
         />
         </div>
@@ -30,11 +31,7 @@ function search(event: AutoCompleteCompleteEvent) {
     })
 }
 onMounted(async () => {
-    if(pokemonStore.getPokemonCount == 0) {
-        console.log(`no pokemon count - fetching from network`)
-        await pokemonStore.setPokemonResults()
-    }
-    else console.log(`was pokemon count - fetching from CACHE`)
+    if(!pokemonStore.getPokemonCount) await pokemonStore.setPokemonResults()
     pokemonStore.getPokemonResults?.results.map(result => possibleResults.push(result.name))
     loading.value = false
 })
