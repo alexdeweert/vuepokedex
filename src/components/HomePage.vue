@@ -31,7 +31,17 @@ function search(event: AutoCompleteCompleteEvent) {
     })
 }
 onMounted(async () => {
-    if(!pokemonStore.getPokemonCount) await pokemonStore.setPokemonResults()
+    //If no pokemon count, there aren't any loaded.
+    //First try to de-serialized from localstorage.
+    //If there are none, then do the network call, which will update the localstorage result.
+    pokemonStore.hydrateState()
+    if(!pokemonStore.getPokemonCount) {
+        console.log(`~~~ NO pokemon count - setting results by calling API`)
+        await pokemonStore.fetchPokemon()
+    }
+    else {
+        console.log(`~~~ HAD pokemon count, not doing network call: ${pokemonStore.getPokemonCount}`)
+    }
     pokemonStore.getPokemonResults?.results.map(result => possibleResults.push(result.name))
     loading.value = false
 })
