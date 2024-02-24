@@ -1,38 +1,92 @@
 import type { PokemonResults } from '@/types/pokemon-results'
 import { defineStore } from 'pinia'
 import { pokemonService } from '@/services/pokemon-service'
+import type { PokemonDetails } from '@/types/pokemon-details'
 
-export interface PokemonStoreState {
-    pokemonResults: PokemonResults | undefined
+interface PokemonDetailsMap {
+    [key: string] : PokemonDetails
 }
-export const PokemonStoreLocalStorageKey = '_keyPokemonStore'
+export interface PokemonStoreState {
+    pokemonResults: PokemonResults | undefined,
+    pokemonDetails: PokemonDetailsMap,
+    pokemonDetailsPostfixKeys: Set<string>
+}
+export const PokemonResultsLocalStorageKey = '_keyPokemonResultsStore'
+export const PokemonDetailLocalStorageKeyPrefix = '_keyPokemonDetails#'
+export const PokemonDetailsPostfixKeys = '_keyPokemonDetailsPostfixes'
 
 export const usePokemonStoreAlt = defineStore('pokemonAlt', {
     state: (): PokemonStoreState => ({
-        pokemonResults: undefined
+        pokemonResults: undefined,
+        pokemonDetails: {},
+        pokemonDetailsPostfixKeys: new Set<string>()
     }),
     getters: {
         getPokemonResults: (state: PokemonStoreState) => state.pokemonResults,
         getPokemonCount: (state: PokemonStoreState): number => state.pokemonResults?.results.length ?? 0,
+        getPokemonDetails: (state: PokemonStoreState) => {
+            return (pokemonName: string): PokemonDetails | undefined => {
+                if( pokemonName in state.pokemonDetails ) {
+                    return state.pokemonDetails[pokemonName]
+                }
+            }
+        }
     },
     actions: {
         async fetchPokemon() {
             const results = await pokemonService.fetchPokemonFromApi()
             if(results) {
                 this.pokemonResults = results
-                sessionStorage.setItem(PokemonStoreLocalStorageKey, JSON.stringify(this.$state))
+                localStorage.setItem(PokemonResultsLocalStorageKey, JSON.stringify(results))
+            }
+        },
+        async fetchPokemonDetails(name: string) {
+            console.log(`~~~ Fetched pokemon details for ${name} from API!`)
+            const results = await pokemonService.fetchPokemonDetailsFromApi(name)
+            if(results) {
+                this.pokemonDetails[name] = results
+                this.pokemonDetailsPostfixKeys.add(name)
+                localStorage.setItem(PokemonDetailLocalStorageKeyPrefix.concat(name), JSON.stringify(results))
+                localStorage.setItem(PokemonDetailsPostfixKeys, JSON.stringify(Array.from(this.pokemonDetailsPostfixKeys.values())))
             }
         },
         hydrateState() {
-            const localStorageItem = sessionStorage.getItem(PokemonStoreLocalStorageKey)
-            if(localStorageItem) {
+            const localStorageResultsItem = localStorage.getItem(PokemonResultsLocalStorageKey)
+            // const localStorageDetailsItem = localStorage.getItem(PokemonResultsLocalStorageKey)
+            if(localStorageResultsItem) {
                 try {
-                    this.$state = JSON.parse(localStorageItem) as PokemonStoreState
+                    this.pokemonResults = JSON.parse(localStorageResultsItem) as PokemonResults
                 }
                 catch(err) {
-                    if(err) console.error(`Error parsing localStorage item with key ${PokemonStoreLocalStorageKey}: ${err}`)
+                    if(err) console.error(`Error parsing localStorage item with key ${PokemonResultsLocalStorageKey}: ${err}`)
                 }
             }
+
+            //Fetch and parse the pokemon postfixes from localstorage
+            const localStoragePokemonPostfixes = localStorage.getItem(PokemonDetailsPostfixKeys)
+            if(localStoragePokemonPostfixes) {
+                try {
+                    const postfixArray = JSON.parse(localStoragePokemonPostfixes) as Array<string>
+                    this.pokemonDetailsPostfixKeys = new Set(postfixArray)
+                }
+                catch(err) {
+                    if(err) console.error(`Error parsing localStorage item with key ${PokemonDetailsPostfixKeys}: ${err}`)
+                }
+            }
+
+            //Use the hydrated prefix results to fetch the existing pokemon details from local storage
+            this.pokemonDetailsPostfixKeys.forEach((postfixKey) => {
+                const detailsKey = PokemonDetailLocalStorageKeyPrefix.concat(postfixKey)
+                try {
+                    const details = localStorage.getItem(detailsKey)
+                    if(details) {
+                        this.pokemonDetails[postfixKey] = JSON.parse(details) as PokemonDetails
+                    }
+                }
+                catch(err) {
+                    if(err) console.error(`Error parsing localStorage item with key ${detailsKey}: ${err}`)
+                }
+            })
         }
     }
 })

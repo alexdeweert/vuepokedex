@@ -4,7 +4,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useInterfaceStore, type InterfaceStoreState, InterfaceStoreLocalStorageKey } from '@/stores/interfaceStore'
+import { useInterfaceStore } from '@/stores/interfaceStore'
 import Button from 'primevue/button'
 import { usePrimeVue } from 'primevue/config'
 import { onMounted } from 'vue';

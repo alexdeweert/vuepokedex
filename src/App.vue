@@ -15,14 +15,21 @@
 import { RouterView, useRouter } from 'vue-router'
 import ToggleThemeButton from '@/components/ToggleThemeButton.vue'
 import Button from 'primevue/button'
+import { onMounted } from 'vue';
+import { usePokemonStoreAlt } from './stores/pokemon';
 const router = useRouter()
+const pokemonStore = usePokemonStoreAlt()
 
 function navToHome() {
     router.push({ name: 'home', params: {} })
 }
 function navToDetails() {
-    router.push({ name: 'details', params: { pokemonId: 'turd1' } })
+    router.push({ name: 'details', params: { pokemonId: 'venusaur' } })
 }
+onMounted(() => {
+    console.log(`~~~ APP mounted - hydrating state`)
+    pokemonStore.hydrateState()
+})
 </script>
 
 <style scoped>
