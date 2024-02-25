@@ -30,6 +30,11 @@ export const usePokemonStoreAlt = defineStore('pokemonAlt', {
                     return state.pokemonDetails[pokemonName]
                 }
             }
+        },
+        hasPokemonDetails: (state: PokemonStoreState) => {
+            return (pokemonName: string): boolean => {
+                return pokemonName in state.pokemonDetails
+            }
         }
     },
     actions: {
@@ -41,7 +46,11 @@ export const usePokemonStoreAlt = defineStore('pokemonAlt', {
             }
         },
         async fetchPokemonDetails(name: string) {
-            console.log(`~~~ Fetched pokemon details for ${name} from API!`)
+            if(this.hasPokemonDetails(name)) {
+                console.log(`fetchPokemonDetails() => Already HAVE stored pokemon details for ${name}`)
+                return
+            }
+            console.log(`fetchPokemonDetails() =>  Need to FETCH pokemon details for ${name} from API!`)
             const results = await pokemonService.fetchPokemonDetailsFromApi(name)
             if(results) {
                 this.pokemonDetails[name] = results

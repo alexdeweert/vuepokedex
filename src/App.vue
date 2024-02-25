@@ -3,7 +3,6 @@
         <nav>
             <ul>
                 <li><Button link @click="navToHome" label="Home" /></li>
-                <li><Button link @click="navToDetails" label="Details" /></li>
             </ul>
         </nav>
         <ToggleThemeButton></ToggleThemeButton>
@@ -16,15 +15,12 @@ import { RouterView, useRouter } from 'vue-router'
 import ToggleThemeButton from '@/components/ToggleThemeButton.vue'
 import Button from 'primevue/button'
 import { onMounted } from 'vue';
-import { usePokemonStoreAlt } from './stores/pokemon';
+import { usePokemonStoreAlt } from '@/stores/pokemonStore';
 const router = useRouter()
 const pokemonStore = usePokemonStoreAlt()
 
 function navToHome() {
     router.push({ name: 'home', params: {} })
-}
-function navToDetails() {
-    router.push({ name: 'details', params: { pokemonId: 'venusaur' } })
 }
 onMounted(() => {
     console.log(`~~~ APP mounted - hydrating state`)
@@ -50,3 +46,4 @@ Button:focus {
     box-shadow: none;
 }
 </style>
+./stores/pokemonStore

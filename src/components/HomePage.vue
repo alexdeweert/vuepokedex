@@ -18,10 +18,10 @@
 
 <script setup lang="ts">
 import AutoComplete, { type AutoCompleteCompleteEvent } from 'primevue/autocomplete'
-import ProgressSpinner from 'primevue/progressspinner';
+import ProgressSpinner from 'primevue/progressspinner'
 import { onMounted, ref, type Ref } from 'vue'
-import { usePokemonStoreAlt } from '@/stores/pokemon'
-import { useRouter } from 'vue-router';
+import { usePokemonStoreAlt } from '@/stores/pokemonStore'
+import { useRouter } from 'vue-router'
 let loading: Ref<boolean> = ref(true)
 let searchItems: Ref<string[]> = ref([])
 let searchValue: Ref<string> = ref('')
@@ -58,3 +58,4 @@ onMounted(async () => {
     justify-content: center;
 }
 </style>
+@/stores/pokemonStore
