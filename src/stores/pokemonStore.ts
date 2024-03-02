@@ -60,8 +60,9 @@ export const usePokemonStoreAlt = defineStore('pokemonAlt', {
             }
         },
         hydrateState() {
+            //Fetch the entire 151 pokemon list from local storage and hydrate into state
+            //This is unrelated to the individually stored pokemon details
             const localStorageResultsItem = localStorage.getItem(PokemonResultsLocalStorageKey)
-            // const localStorageDetailsItem = localStorage.getItem(PokemonResultsLocalStorageKey)
             if(localStorageResultsItem) {
                 try {
                     this.pokemonResults = JSON.parse(localStorageResultsItem) as PokemonResults
